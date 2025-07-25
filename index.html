@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>School Guide</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Poppins", sans-serif; }
+    body { background: #f4f4f4; display: flex; flex-direction: column; min-height: 100vh; }
+    header { background: #4CAF50; color: white; text-align: center; padding: 20px; font-size: 22px; font-weight: bold; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); }
+    .welcome { text-align: center; padding: 20px; color: #333; max-width: 800px; margin: 0 auto; font-size: 16px; line-height: 1.6; }
+    h2 { text-align: center; margin: 20px 0 10px 0; font-size: 20px; color: #333; }
+    .list { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; padding: 20px; width: 100%; max-width: 900px; margin: 0 auto; }
+    .card { background: white; padding: 20px; text-align: center; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); cursor: pointer; transition: all 0.3s ease; font-weight: bold; font-size: 16px; color: #444; }
+    .card:hover { background: #e8f5e9; transform: scale(1.05); }
+    #guide-photo { display: none; max-width: 95%; margin: 20px auto; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); }
+    #back-btn { display: none; margin: 10px auto; padding: 12px 20px; font-size: 16px; background: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+    #back-btn:hover { background: #45a049; }
+    footer { margin-top: auto; text-align: center; padding: 15px; font-size: 14px; color: #777; background: #f0f0f0; }
+  </style>
+</head>
+<body>
+  <header>School Guide</header>
+
+  <!-- Welcome Section -->
+  <div class="welcome">
+    <h1>Welcome to School Guide</h1>
+    <p>This website helps students quickly find answers, notes, and guides for their textbooks. Everything is organized by <b>subject, chapter, and page number</b> for easy navigation.</p>
+    <p>Just choose your subject, select a chapter, then pick the page to see your notes instantly. Free for all students, supported by ads.</p>
+  </div>
+
+  <h2 id="title">Select a Subject</h2>
+
+  <!-- Dynamic Lists -->
+  <div class="list" id="subjects"></div>
+  <div class="list" id="chapters" style="display:none;"></div>
+  <div class="list" id="pages" style="display:none;"></div>
+
+  <!-- Guide Image -->
+  <img id="guide-photo" src="" alt="Guide Answer">
+
+  <!-- Back Button -->
+  <button id="back-btn" onclick="goBack()">Back</button>
+
+  <footer>© 2025 School Guide | Powered by Ankit</footer>
+
+  <script>
+    // ---- Editable Data: Add as many as you want ----
+    const guideData = {
+      "Math": {
+        "Chapter 1": 5,  // 5 pages
+        "Chapter 2": 3,
+        "Chapter 3": 4
+      },
+      "Science": {
+        "Chapter 1": 6,
+        "Chapter 2": 2
+      },
+      "English": {
+        "Chapter 1": 10
+      }
+    };
+
+    let currentSubject = '';
+    let currentChapter = '';
+
+    // Populate Subjects dynamically
+    const subjectsDiv = document.getElementById('subjects');
+    for (const subject in guideData) {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerText = subject;
+      div.onclick = () => selectSubject(subject);
+      subjectsDiv.appendChild(div);
+    }
+
+    function selectSubject(subject) {
+      currentSubject = subject;
+      document.getElementById('title').innerText = `Select Chapter (${subject})`;
+      subjectsDiv.style.display = 'none';
+      document.getElementById('back-btn').style.display = 'block';
+
+      const chaptersDiv = document.getElementById('chapters');
+      chaptersDiv.innerHTML = '';
+      chaptersDiv.style.display = 'grid';
+
+      // Populate Chapters
+      for (const chapter in guideData[subject]) {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerText = chapter;
+        div.onclick = () => selectChapter(chapter);
+        chaptersDiv.appendChild(div);
+      }
+    }
+
+    function selectChapter(chapter) {
+      currentChapter = chapter;
+      document.getElementById('title').innerText = `${currentSubject} - ${chapter} (Select Page)`;
+      document.getElementById('chapters').style.display = 'none';
+
+      const pagesDiv = document.getElementById('pages');
+      pagesDiv.innerHTML = '';
+      pagesDiv.style.display = 'grid';
+
+      // Number of pages is from guideData
+      const totalPages = guideData[currentSubject][chapter];
+      for (let i = 1; i <= totalPages; i++) {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerText = `Page ${i}`;
+        div.onclick = () => showGuide(currentSubject, chapter, i);
+        pagesDiv.appendChild(div);
+      }
+    }
+
+    function showGuide(subject, chapter, page) {
+      document.getElementById('title').innerText = `${subject} - ${chapter} - Page ${page}`;
+      document.getElementById('pages').style.display = 'none';
+
+      const photo = document.getElementById('guide-photo');
+      // Path based on folder: guides/math/chapter1/page1.jpg
+      photo.src = `guides/${subject.toLowerCase()}/${chapter.replace(' ', '').toLowerCase()}/page${page}.jpg`;
+      photo.style.display = 'block';
+      document.getElementById('back-btn').style.display = 'block';
+    }
+
+    function goBack() {
+      const photo = document.getElementById('guide-photo');
+      const pagesDiv = document.getElementById('pages');
+      const chaptersDiv = document.getElementById('chapters');
+
+      if (photo.style.display === 'block') {
+        photo.style.display = 'none';
+        pagesDiv.style.display = 'grid';
+        document.getElementById('title').innerText = `${currentSubject} - ${currentChapter} (Select Page)`;
+      } else if (pagesDiv.style.display === 'grid') {
+        pagesDiv.style.display = 'none';
+        chaptersDiv.style.display = 'grid';
+        document.getElementById('title').innerText = `Select Chapter (${currentSubject})`;
+      } else if (chaptersDiv.style.display === 'grid') {
+        chaptersDiv.style.display = 'none';
+        subjectsDiv.style.display = 'grid';
+        document.getElementById('title').innerText = "Select a Subject";
+        document.getElementById('back-btn').style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>
